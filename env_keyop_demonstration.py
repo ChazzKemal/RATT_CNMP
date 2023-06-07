@@ -7,11 +7,26 @@ from environment_termproject import *
 
 
 def replay_demonstration(demonstration, env): # also see env._follow_ee_trajectory(position_traj, orientation_traj)
+    states = []
+    rewards = []
     for ee_State in demonstration:
         env._set_ee_pose(np.array((ee_State[0], ee_State[1], 1.07)), rotation=[-90, 0, 180], max_iters=10)
+        
         state = env.high_level_state()
+        states.append(state)
+        
+        reward = env.reward()
+        rewards.append(reward)
+        
         ee_State = state[:3]
         print(f"End effector position: {ee_State}")
+    
+    states = np.array(states)
+    rewards = np.array(rewards)
+    
+    new_demonstration = np.hstack((states, rewards.reshape(-1, 1)))
+    
+    return new_demonstration
 
 
 def interpolate_demonstration(demonstration, steps=100):
