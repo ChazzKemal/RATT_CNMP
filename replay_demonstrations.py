@@ -6,6 +6,11 @@ if __name__ == "__main__":
     for i in range(num_of_demos):
         env.reset()
         
+        # Closing gripper
+        joint_poses = env._get_joint_position()  #"ur5e/robotiq_2f85/right_driver_joint"
+        joint_poses[6]=np.pi/6 # setting gripper joint to close
+        env._set_joint_position(joint_poses)
+        
         loaded_demo = np.load(f"demos/demo_{i+1}.npy")
         ee_States = loaded_demo[:, :3]
         

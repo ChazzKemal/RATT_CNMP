@@ -80,7 +80,10 @@ class BaseEnv:
         return position
 
     def _set_joint_position(self, position_dict, max_iters=10000, threshold=0.05):
-        for idx in position_dict:
+        for idx in range(len(position_dict)):
+            print("idx:", idx)
+            print("position_dict:", position_dict)
+            print("self.data.ctrl:", self.data.ctrl)
             if idx == 6:
                 self.data.ctrl[idx] = position_dict[idx]*255
             else:
@@ -93,7 +96,7 @@ class BaseEnv:
             self._step()
             max_error = 0
             current_position = self._get_joint_position()
-            for idx in position_dict:
+            for idx in range(len(position_dict)):
                 error = abs(current_position[idx] - position_dict[idx])
                 if error > max_error:
                     max_error = error

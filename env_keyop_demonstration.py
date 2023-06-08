@@ -48,15 +48,15 @@ def interpolate_demonstration(demonstration, steps=100):
     
 #GLOBAL VARS FOR ENVIRONMENT:
 flag_rand = False
-obj_position = np.array((0.70, -0.10))
-goal_position = np.array((0.30, 0.15))
-origin = np.array((0.5, 0.3, 1.07))
-num_of_demos = 20
+obj_position = np.array((0.65, -0.10))
+goal_position = np.array((0.40, 0.15))
+origin = np.array((0.6, 0.3, 1.07))
+num_of_demos = 40
 
 env = TermProject_env(obj_position=obj_position, goal_position=goal_position, flag_rand=flag_rand, render_mode="gui")
 
 if __name__ == "__main__":    
-
+    demonstrations = []
     step_size = 0.005
     flag_print = False
     
@@ -67,7 +67,11 @@ if __name__ == "__main__":
         
         # Setting initial position; i.e., origin point
         env._set_ee_in_cartesian(origin, rotation=[-90, 0, 180], n_splits=100, max_iters=100, threshold=0.05)
-
+        
+        joint_poses = env._get_joint_position()  #"ur5e/robotiq_2f85/right_driver_joint"
+        joint_poses[6]=np.pi/6 # setting gripper joint to close
+        env._set_joint_position(joint_poses)
+        
         #Getting initial states
         state = env.high_level_state()
         ee_State = state[:3]
