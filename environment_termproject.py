@@ -142,13 +142,17 @@ class CNP(torch.nn.Module):
 
 
 class TermProject_env(environment_base.BaseEnv):
-    def __init__(self, obj_position, goal_position, flag_rand=True, **kwargs) -> None:
+    def __init__(self, origin, obj_position, goal_position, flag_rand=True, density=1000, **kwargs) -> None:
         super().__init__(**kwargs)
         self._delta = 0.05
         self._goal_thresh = 0.01
         self._max_timesteps = 50
         self._flag_rand = flag_rand
+        self._density_object = density
         self._predef_position = np.array([np.hstack((obj_position, 1.5)),np.hstack((goal_position, 1.025))])
+        self._origin = origin
+        self.go_origin()
+        self.close_gripper()
         # self.object_start_pos# Abdullah 07.06.23
         # self.goal_pos# Abdullah 07.06.23
         #self.set_initial_pos(obj_start_pos,goal_pos) # Abdullah 07.06.23
@@ -175,6 +179,18 @@ class TermProject_env(environment_base.BaseEnv):
     #     return scene
         
         
+    def go_origin(self):
+        # Setting initial position; i.e., origin point
+        self._set_ee_in_cartesian(self._origin, rotation=[-90, 0, 180], n_splits=100, max_iters=100, threshold=0.05)
+        
+        
+    def close_gripper(self):
+        # Closing the gripper
+        joint_poses = self._get_joint_position()  #"ur5e/robotiq_2f85/right_driver_joint"
+        joint_poses[6]=np.pi/6 # setting gripper joint to close
+        self._set_joint_position(joint_poses)
+        
+        
     def _create_scene(self, seed=None):
         if self._flag_rand:
             if seed is not None:
@@ -189,7 +205,7 @@ class TermProject_env(environment_base.BaseEnv):
             #object
             environment_base.create_object(scene, "box", pos=obj_pos, quat=[0, 0, 0, 1],
                                     size=[0.03, 0.03, 0.03], rgba=[0.8, 0.2, 0.2, 1],
-                                    name="obj1")
+                                    name="obj1", density=self._density_object)
             #goal
             environment_base.create_visual(scene, "cylinder", pos=goal_pos, quat=[0, 0, 0, 1],
                                     size=[0.05, 0.005], rgba=[0.2, 1.0, 0.2, 1],
@@ -199,7 +215,7 @@ class TermProject_env(environment_base.BaseEnv):
             #object
             environment_base.create_object(scene, "box", pos=self._predef_position[0], quat=[0, 0, 0, 1],
                                     size=[0.03, 0.03, 0.03], rgba=[0.8, 0.2, 0.2, 1],
-                                    name="obj1")
+                                    name="obj1", density=self._density_object)
             #goal
             environment_base.create_visual(scene, "cylinder", pos=self._predef_position[1], quat=[0, 0, 0, 1],
                                     size=[0.05, 0.005], rgba=[0.2, 1.0, 0.2, 1],
@@ -218,10 +234,10 @@ class TermProject_env(environment_base.BaseEnv):
         return pixels / 255.0
 
     def high_level_state(self):
-        ee_pos = self.data.site(self._ee_site).xpos[:3]
+        ee_pos = self.data.site(self._ee_site).xpos[:2]
         obj_pos = self.data.body("obj1").xpos[:2]
         goal_pos = self.data.site("goal").xpos[:2]
-        return np.concatenate([ee_pos, obj_pos, goal_pos]) # ee-> 3D, obj-> 2D, goal-> 2D
+        return np.concatenate([ee_pos, obj_pos, goal_pos]) # ee-> 2D, obj-> 2D, goal-> 2D
 
     def reward(self):
         state = self.high_level_state()

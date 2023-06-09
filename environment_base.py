@@ -28,6 +28,7 @@ class BaseEnv:
             "ur5e/robotiq_2f85/right_driver_joint"
         ]
         self._flag_rand = True
+        self._density_object = 1000
         self.reset()
         self._joint_qpos_idxs = [self.model.joint(x).qposadr for x in self._joint_names]
         self._ee_site = "ur5e/robotiq_2f85/gripper_site"
@@ -81,9 +82,9 @@ class BaseEnv:
 
     def _set_joint_position(self, position_dict, max_iters=10000, threshold=0.05):
         for idx in range(len(position_dict)):
-            print("idx:", idx)
-            print("position_dict:", position_dict)
-            print("self.data.ctrl:", self.data.ctrl)
+            # print("idx:", idx)
+            # print("position_dict:", position_dict)
+            # print("self.data.ctrl:", self.data.ctrl)
             if idx == 6:
                 self.data.ctrl[idx] = position_dict[idx]*255
             else:
