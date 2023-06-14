@@ -2,8 +2,10 @@
 
 Abdullah Kayacan, Ali Karakullukcu, SÜleyman Batuhan Vatan
 
+This repo is for seeing the development, commits etc. The main merged repo can be accessed via: https://github.com/Sbvatan/RATT-CNMP
+
 ## RATT-CNMP
-###Reward Conditioned Attention-based Conditional Movement Primitives for Learning Robotic Skills
+### Reward Conditioned Attention-based Conditional Movement Primitives for Learning Robotic Skills
 
 You can alter the first block of the notebooks to change in between CNP, NP and attention-based encoders. For NP please also uncomment model=NP(...) line.
 
